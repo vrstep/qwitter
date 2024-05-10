@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  myapp:
+    image : qwitterbackend
+    container_name: myapp
+    ports:
+      - "8000:8080"
+    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/qwitterdb
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/qwitterdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
