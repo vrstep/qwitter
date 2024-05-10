@@ -21,12 +21,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addUser(User user) {
-        log.info("Adding a user");
-        userRepository.save(user);
-    }
-
-    @Override
     public User getUserById(Integer id) {
         log.info("Getting a user by id: {}", id);
         Optional<User> optionalUser = userRepository.findById(id);
@@ -47,7 +41,6 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new RuntimeException("User not found");
         }
-
     }
 
 }
