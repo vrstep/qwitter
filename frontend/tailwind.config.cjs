@@ -19,6 +19,7 @@ module.exports = {
     },
     extend: {
       colors: {
+        'twitter': '#1DA1F2',
         textColor: "hsl(var(--text-color))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
