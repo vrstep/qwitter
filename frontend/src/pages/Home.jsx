@@ -1,6 +1,7 @@
 import * as React from "react";
 import LeftSidebar from "../components/LeftSidebar";
 import MainComponent from "../components/MainComponent";
+import Rightsidebar from "../components/Rightsidebar";
 
 function Home() {
   return (
@@ -8,6 +9,7 @@ function Home() {
       <div className="max-w-screen-xl w-full h-full flex relative">
         <LeftSidebar />
         <MainComponent />
+        <Rightsidebar />
         <section></section>
       </div>
     </div>
