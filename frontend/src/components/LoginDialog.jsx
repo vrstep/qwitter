@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 import {Button} from '@/components/ui/button';
 import axios from 'axios';
@@ -7,13 +8,14 @@ function LoginDialog() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const { setIsAuthenticated } = useContext(AuthContext);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("form submitted");
 
         try {
-            const response = await axios.post("http://localhost:8000/api/v1/auth/authenticate", {
+            const response = await axios.post("http://localhost:8080/api/v1/auth/authenticate", {
                 email,
                 password,
             });
