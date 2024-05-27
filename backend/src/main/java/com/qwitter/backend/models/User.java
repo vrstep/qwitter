@@ -28,6 +28,7 @@ public class User implements UserDetails {
     private String firstName;
     private String lastName;
     private String email;
+    private String userName;
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -46,8 +47,13 @@ public class User implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public String getUsername() {
         return email;
+    }
+
+    public String getRealUsername() {
+        return userName;
     }
 
     @Override
