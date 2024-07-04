@@ -1,7 +1,7 @@
 import * as React from "react";
 import LeftSidebar from "../components/LeftSidebar";
 import MainComponent from "../components/MainComponent";
-import Rightsidebar from "../components/Rightsidebar";
+import Rightsidebar from "../components/RightSidebar";
 
 function Home() {
   return (
@@ -10,7 +10,6 @@ function Home() {
         <LeftSidebar />
         <MainComponent />
         <Rightsidebar />
-        <section></section>
       </div>
     </div>
   );
