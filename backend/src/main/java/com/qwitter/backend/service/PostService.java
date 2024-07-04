@@ -1,25 +1,29 @@
 package com.qwitter.backend.service;
 
+import com.qwitter.backend.models.Image;
 import com.qwitter.backend.models.Post;
 import com.qwitter.backend.models.User;
 import com.qwitter.backend.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 @Service
-@Transactional
 public class PostService {
     private final PostRepository postRepository;
     private final UserService userService;
+    private final ImageService imageService;
 
     @Autowired
-    public PostService(PostRepository postRepository, UserService userService) {
+    public PostService(PostRepository postRepository, UserService userService, ImageService imageService) {
         this.postRepository = postRepository;
         this.userService = userService;
+        this.imageService = imageService;
     }
 
     public List<Post> getAllPosts() {
@@ -76,6 +80,13 @@ public class PostService {
         Post post = getPostById(postId);
         User user = userService.getUserById(userId);
         post.getBookmarks().add(user);
+        return postRepository.save(post);
+    }
+
+    public Post unbookmarkPost(Integer postId, Integer userId) {
+        Post post = getPostById(postId);
+        User user = userService.getUserById(userId);
+        post.getBookmarks().remove(user);
         return postRepository.save(post);
     }
 }

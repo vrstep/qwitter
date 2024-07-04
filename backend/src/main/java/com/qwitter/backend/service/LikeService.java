@@ -26,4 +26,11 @@ public class LikeService {
         post.getLikes().add(user);
         postRepository.save(post);
     }
+
+    public void unlikePost(Integer postId, Integer userId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        post.getLikes().remove(user);
+        postRepository.save(post);
+    }
 }

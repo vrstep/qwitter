@@ -1,6 +1,7 @@
 package com.qwitter.backend.service;
 
 import com.qwitter.backend.dto.ChangePasswordRequest;
+import com.qwitter.backend.models.Image;
 import com.qwitter.backend.models.User;
 import com.qwitter.backend.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -8,21 +9,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    @Autowired
     private UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ImageService imageService;
 
-    public UserServiceImpl(PasswordEncoder passwordEncoder) {
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, ImageService imageService) {
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.imageService = imageService;
     }
 
     @Override
@@ -97,5 +104,69 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         userRepository.save(user);
+    }
+
+    @Override
+    public User setProfileOrBannerPicture(String username, MultipartFile file, String prefix) {
+        Optional<User> optionalUser = userRepository.findByUserName(username);
+        Image photo = imageService.uploadImage(file, prefix);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (prefix.equals("pfp")) {
+                user.setProfilePicture(photo);
+            } else {
+                user.setBannerPicture(photo);
+            }
+            return userRepository.save(user);
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
+
+    @Override
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+
+    @Override
+    public void followUser(Integer followerId, Integer followedId) {
+        Optional<User> optionalFollower = userRepository.findById(followerId);
+        Optional<User> optionalFollowed = userRepository.findById(followedId);
+
+        if (optionalFollower.isPresent() && optionalFollowed.isPresent()) {
+            User follower = optionalFollower.get();
+            User followed = optionalFollowed.get();
+
+            follower.getFollowing().add(followed);
+            followed.getFollowers().add(follower);
+
+            userRepository.save(follower);
+            userRepository.save(followed);
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
+
+    @Override
+    public Set<User> getFollowers(Integer userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            return user.getFollowers();
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
+
+    @Override
+    public Set<User> getFollowing(Integer userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            return user.getFollowing();
+        } else {
+            throw new RuntimeException("User not found");
+        }
     }
 }
