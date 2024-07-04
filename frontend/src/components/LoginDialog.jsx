@@ -15,7 +15,7 @@ function LoginDialog() {
         console.log("form submitted");
 
         try {
-            const response = await axios.post("http://localhost:8080/api/v1/auth/authenticate", {
+            const response = await axios.post("http://localhost:8000/api/v1/auth/authenticate", {
                 email,
                 password,
             });

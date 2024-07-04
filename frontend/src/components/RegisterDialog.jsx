@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
+import { Toaster, toast } from 'react-hot-toast';
 
 function RegisterDialog() {
+  const [isOpen, setIsOpen] = useState(true);
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,13 +21,22 @@ function RegisterDialog() {
         password,
       });
       console.log(response.data);
+      setIsOpen(false);
+      toast.success("Registration successfull!")
     }
     catch (error) {
       setError(error.response.data.message);
+      toast.error("Registration failed");
     }
   }
 
+  if(!isOpen) {
+    return null;
+  }
+
   return (
+    <>
+    <Toaster/>
     <div className="mt-4">
       <Dialog>
         <DialogTrigger>
@@ -76,6 +87,7 @@ function RegisterDialog() {
           </DialogContent>
       </Dialog>
     </div>
+    </>
   );
 }
 export default RegisterDialog;
