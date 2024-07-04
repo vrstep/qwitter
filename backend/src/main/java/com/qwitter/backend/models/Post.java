@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -38,7 +39,11 @@ public class Post {
             joinColumns= {@JoinColumn(name = "post_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")}
     )
-    private Set<User> likes;
+    private Set<User> likes = new HashSet<>();
+
+    public int getLikesCount() {
+        return this.likes.size();
+    }
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

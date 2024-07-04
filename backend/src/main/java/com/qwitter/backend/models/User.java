@@ -3,16 +3,15 @@ package com.qwitter.backend.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.qwitter.backend.enums.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -33,6 +32,42 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    private String bio;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(
+            name = "profile_picture",
+            referencedColumnName = "image_id"
+    )
+    private Image profilePicture;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(
+            name = "profile_banner",
+            referencedColumnName = "image_id"
+    )
+    private Image bannerPicture;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "following",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "following_id")}
+    )
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private Set<User> following = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "followers",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "follower_id")}
+    )
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private Set<User> followers = new HashSet<>();
 
     @Override
     @JsonIgnore
@@ -78,5 +113,23 @@ public class User implements UserDetails {
     @JsonIgnore
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", role=" + role +
+                ", bio='" + bio + '\'' +
+                ", profilePicture=" + profilePicture +
+                ", bannerPicture=" + bannerPicture +
+                ", following=" + following.size() +
+                ", followers=" + followers.size() +
+                '}';
     }
 }

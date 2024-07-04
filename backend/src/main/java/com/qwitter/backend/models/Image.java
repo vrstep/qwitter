@@ -1,5 +1,6 @@
 package com.qwitter.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,12 +17,19 @@ public class Image {
 
     @Id
     @GeneratedValue
+    @Column(name = "image_id")
     private Integer id;
 
-    @Column(nullable = false)
-    private String url;
+    @Column(name = "image_name", unique = true)
+    private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
+    @Column(name = "image_type")
+    private String type;
+
+    @Column(name = "image_path")
+    @JsonIgnore
+    private String path;
+
+    @Column(name = "image_url")
+    private String url;
 }
