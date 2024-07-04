@@ -1,8 +1,12 @@
 package com.qwitter.backend.controllers;
 
+import com.qwitter.backend.command.BookmarkCommand;
+import com.qwitter.backend.command.Command;
+import com.qwitter.backend.command.CommandInvoker;
+import com.qwitter.backend.command.LikeCommand;
 import com.qwitter.backend.models.Post;
-import com.qwitter.backend.service.LikeService;
-import com.qwitter.backend.service.PostService;
+import com.qwitter.backend.service.*;
+import com.qwitter.backend.utils.SortStrategyFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,15 +17,22 @@ public class PostController {
 
     private final PostService postService;
     private final LikeService likeService;
+    private final CommandInvoker commandInvoker;
+    private final SortByDateStrategy sortStrategy;
+    private final SortStrategyFactory sortStrategyFactory;
 
-    public PostController(PostService postService, LikeService likeService) {
+    public PostController(PostService postService, LikeService likeService, CommandInvoker commandInvoker) {
         this.postService = postService;
         this.likeService = likeService;
+        this.commandInvoker = commandInvoker;
+        this.sortStrategy = new SortByDateStrategy();
+        this.sortStrategyFactory = new SortStrategyFactoryImpl();
     }
 
     @GetMapping
     public List<Post> getAllPosts() {
-        return postService.getAllPosts();
+        List<Post> posts = postService.getAllPosts();
+        return sortStrategyFactory.getSortStrategy("date").sort(posts);
     }
 
     @GetMapping("/{id}")
@@ -51,7 +62,13 @@ public class PostController {
 
     @PostMapping("/{postId}/like/{userId}")
     public void likePost(@PathVariable Integer postId, @PathVariable Integer userId) {
-        likeService.likePost(postId, userId);
+        Command command = new LikeCommand(likeService, postId, userId);
+        commandInvoker.executeCommand(command);
+    }
+
+    @PostMapping("/{postId}/unlike/{userId}")
+    public void unlikePost(@PathVariable Integer postId, @PathVariable Integer userId) {
+        commandInvoker.undoLastCommand();
     }
 
     @PostMapping("/{postId}/reply")
@@ -66,6 +83,12 @@ public class PostController {
 
     @PostMapping("/{postId}/bookmark/{userId}")
     public void bookmarkPost(@PathVariable Integer postId, @PathVariable Integer userId) {
-        postService.bookmarkPost(postId, userId);
+        Command command = new BookmarkCommand(postService, postId, userId);
+        commandInvoker.executeCommand(command);
+    }
+
+    @PostMapping("/{postId}/unbookmark/{userId}")
+    public void unbookmarkPost() {
+        commandInvoker.undoLastCommand();
     }
 }

@@ -2,13 +2,18 @@ package com.qwitter.backend.controllers;
 
 import com.qwitter.backend.dto.ChangePasswordRequest;
 import com.qwitter.backend.models.User;
+import com.qwitter.backend.service.ImageService;
 import com.qwitter.backend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -16,9 +21,12 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final ImageService imageService;
 
-    public UserController(UserService userService) {
+    @Autowired
+    public UserController(UserService userService, ImageService imageService) {
         this.userService = userService;
+        this.imageService = imageService;
     }
 
     @GetMapping
@@ -56,5 +64,43 @@ public class UserController {
     ) {
         userService.changePassword(request, connectedUser);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/setProfilePicture/{username}")
+    public User setProfilePicture(
+            @PathVariable String username,
+            @RequestParam("image") MultipartFile file
+    ) {
+        return userService.setProfileOrBannerPicture(username, file, "pfp");
+    }
+
+    @PostMapping("/setBannerPicture/{username}")
+    public User setBannerPicture(
+            @PathVariable String username,
+            @RequestParam("image") MultipartFile file
+    ) {
+        return userService.setProfileOrBannerPicture(username, file, "bnr");
+    }
+
+    @PutMapping("/")
+    public User updateUser(@RequestBody User user) {
+        return userService.updateUser(user);
+    }
+
+    @PostMapping("/follow/{followerId}/{followedId}")
+    public ResponseEntity<?> followUser(@PathVariable Integer followerId, @PathVariable Integer followedId) {
+        log.info("User with id: {} is following user with id: {}", followerId, followedId);
+        userService.followUser(followerId, followedId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/followers/{userId}")
+    public Set<User> getFollowers(@PathVariable Integer userId) {
+        return userService.getFollowers(userId);
+    }
+
+    @GetMapping("/following/{userId}")
+    public Set<User> getFollowing(@PathVariable Integer userId) {
+        return userService.getFollowing(userId);
     }
 }
